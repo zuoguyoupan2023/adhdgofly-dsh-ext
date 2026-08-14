@@ -97,6 +97,22 @@ if (preHl !== 0) throw new Error('code block was highlighted!')
 if (words.includes('Streaming')) throw new Error('streaming message highlighted too early!')
 if (words.includes('answer') || words.includes('words')) throw new Error('streaming words highlighted!')
 
+// ── attribute contract (方案 A′): any element with data-adhdgofly-highlight
+// is adopted regardless of the `containers` config ─────────────────────────
+const adopted = window.document.createElement('div')
+adopted.setAttribute('data-adhdgofly-highlight', '')
+const adoptedText = window.document.createElement('p')
+adoptedText.textContent = 'Adopted container with quick brown words.'
+adopted.appendChild(adoptedText)
+window.document.body.appendChild(adopted)
+await new Promise((r) => setTimeout(r, 700))
+const adoptedSpans = [...adopted.querySelectorAll('.adhdgofly-hl')].map((s) => s.textContent)
+console.log('adopted container spans:', adoptedSpans)
+if (!adoptedSpans.includes('quick') || !adoptedSpans.includes('brown')) {
+  throw new Error('adopted container (data-adhdgofly-highlight) not highlighted: ' + JSON.stringify(adoptedSpans))
+}
+console.log('attribute contract OK')
+
 // style tag + posFilter
 const style = window.document.getElementById('adhdgofly-style')
 if (!style) throw new Error('style tag missing')

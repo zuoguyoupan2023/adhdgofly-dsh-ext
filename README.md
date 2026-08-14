@@ -14,6 +14,7 @@
 - **高亮样式**：`color`（文字变色，默认）/ `highlight`（背景框 + 边框）。
 - **流式兼容**：`[data-streaming]` 消息流完前跳过，settle 后自动高亮；MutationObserver + 防抖 + 重入锁。
 - **代码块豁免**：`pre/code`、`.markdown-code-block`、按钮/输入框/装饰区不参与高亮。
+- **属性契约（v0.1.2）**：任何带 `data-adhdgofly-highlight` 属性的元素**自动被高亮**（无需写入 `containers` 配置、无需重新加载）——`openharness-reader` 的 Markdown 预览即用此契约接入；其他插件可照此联动。未带该属性的页面不受影响。
 - **设置页**：Settings → **ADHDGoFly** 分区（启用、语言、最小词长、样式、词性筛选、高亮容器），改动即时生效并持久化到 localStorage。
 
 ## 安装
@@ -171,3 +172,14 @@ MarkdownText 渲染完成 → MutationObserver（防抖 400ms + 重入锁 + Weak
 - 高亮为渲染后 DOM 后处理：React 重渲染时高亮可能短暂重置（已用防抖/流式跳过/已处理文本跟踪缓解）。
 - 不覆盖代码编辑器（DSH 无）、浏览器任意网页（那是 [adhdgoflyplugin 浏览器扩展](https://chromewebstore.google.com/detail/adhdgofly-%E7%82%B9%E4%BA%AE%E4%BD%A0%E7%9A%84%E8%A7%86%E9%87%8E-chrome/bdpadkojpehfdepjjadmpjeieiddeodl?hl=en-US) / [Edge 加载项](https://microsoftedge.microsoft.com/addons/detail/adhdgofly-%E7%82%B9%E4%BA%AE%E4%BD%A0%E7%9A%84%E8%A7%86%E9%87%8E-edge/odleggjpbedagojaljdopcgolkcibljh?hl=zh-CN) 的职责）。
 - 设置持久化在浏览器 localStorage（跨浏览器不同步）；host 侧设置存储与 host 分词 RPC 为 v2 项。
+
+## 我开发的 DSH 插件
+
+我（zuoguyoupan2023）开发维护的一系列 DeepSeek Harness（dsh）插件，均可按需通过 `dsh plugin --profile web add <name>` 安装：
+
+| 插件 | 作用 | 安装 |
+|---|---|---|
+| **adhdgofly-dsh-ext** | DSH Web 界面词性高亮（名绿/动红/形紫/其他灰） | `dsh plugin --profile web add adhdgofly-dsh-ext` |
+| **openharness-reader** | 工作区文件浏览/编辑 + Markdown 预览 | `dsh plugin --profile web add openharness-reader` |
+| **openharness-reply-in-cn** | 强制模型用简体中文回复，侧边栏「中文回复」项 | `dsh plugin --profile web add openharness-reply-in-cn` |
+| **openharness-rule-for-dsh-plugin** | 注入 DSH 插件开发的 CAN/SHOULD/MUST NOT 规范，侧边栏「插件开发规范」项 | `dsh plugin --profile web add openharness-rule-for-dsh-plugin` |

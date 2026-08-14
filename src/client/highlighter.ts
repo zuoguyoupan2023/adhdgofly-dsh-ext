@@ -30,6 +30,15 @@ declare const __ADHD_DICT_ZH: Record<string, string>
 
 export const HIGHLIGHT_CLASS = 'adhdgofly-hl'
 export const STYLE_TAG_ID = 'adhdgofly-style'
+/**
+ * Public attribute contract (方案 A′, openharness-reader 000 §五): ANY element
+ * carrying this attribute is highlighted regardless of the `containers`
+ * config — e.g. openharness-reader's Markdown preview puts
+ * `data-adhdgofly-highlight` on its `.ohr-md` container. Adopted on every
+ * pass, so no registration call or page reload is needed; inert for
+ * third-party pages that never set it.
+ */
+export const ADOPT_SELECTOR = '[data-adhdgofly-highlight]'
 
 const SKIP_TAGS = new Set(['PRE', 'CODE', 'SCRIPT', 'STYLE', 'TEMPLATE', 'SVG', 'BUTTON', 'INPUT', 'TEXTAREA', 'SELECT', 'OPTION'])
 const DEBOUNCE_MS = 400
@@ -214,13 +223,24 @@ export class ADHDGoFlyHighlighter {
   private processAll(): void {
     if (!this.cfg.enabled) return
     const containers = findContainers(this.cfg)
-    if (containers.length === 0) return
+    if (containers.length === 0 && !document.querySelector(ADOPT_SELECTOR)) return
+
+    // Config containers first, then any element carrying the public
+    // `data-adhdgofly-highlight` attribute contract (dedup — processContainer
+    // is idempotent anyway via processedText, this just avoids double walks).
+    const seen = new Set<Element>(containers)
 
     // Streaming messages are skipped per text node (isStreamingNode); settled
     // content is highlighted immediately so a long stream does not blank the
     // whole conversation.
     for (const container of containers) {
       this.processContainer(container)
+    }
+    for (const el of document.querySelectorAll(ADOPT_SELECTOR)) {
+      if (!seen.has(el)) {
+        seen.add(el)
+        this.processContainer(el)
+      }
     }
   }
 
