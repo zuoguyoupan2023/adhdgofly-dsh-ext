@@ -153,13 +153,21 @@ MarkdownText 渲染完成 → MutationObserver（防抖 400ms + 重入锁 + Weak
 
 详见仓库根目录 `000-adhdgofly-dsh-ext-plan.md`（规划）与 `001-adhdgofly-ide-ext-reference.md`（移植参考）。
 
+## 相关项目（ADHDGoFly 生态）
+
+| 项目 | 说明 | 获取方式 |
+|---|---|---|
+| **adhdgoflyplugin（浏览器扩展）** | 浏览器**任意网页**的词性高亮 | [Chrome 应用商店](https://chromewebstore.google.com/detail/adhdgofly-%E7%82%B9%E4%BA%AE%E4%BD%A0%E7%9A%84%E8%A7%86%E9%87%8E-chrome/bdpadkojpehfdepjjadmpjeieiddeodl?hl=en-US) · [Edge 加载项](https://microsoftedge.microsoft.com/addons/detail/adhdgofly-%E7%82%B9%E4%BA%AE%E4%BD%A0%E7%9A%84%E8%A7%86%E9%87%8E-edge/odleggjpbedagojaljdopcgolkcibljh?hl=zh-CN) |
+| **adhdgofly-ide-ext** | VS Code 扩展：编辑器内词性高亮 | [GitHub](https://github.com/zuoguyoupan2023/adhdgofly-ide-ext) |
+| **adhdgofly-dsh-ext（本插件）** | DSH Web 界面词性高亮 | `dsh plugin --profile web add adhdgofly-dsh-ext` |
+
 ## 许可与数据来源
 
 - 代码：MIT（本仓库 + adhdgofly-ide-ext，同属 ADHDGoFly 生态）。
-- 词典数据：adhdgofly-ide-ext 内置词典（`dictionaries/EN_word.json`、`ZH_word.json`，MIT 生态），压缩产物随包分发；独立发布时请注明数据来源与生成脚本（`scripts/build-dicts.mjs`）。
+- 词典数据：源自 adhdgofly-ide-ext 内置词典（`dictionaries/EN_word.json`、`ZH_word.json`，MIT 生态），其中**英文词典来自 Princeton WordNet**（[WordNet License](https://wordnet.princeton.edu/license-and-commercial-use)），**中文词典来自 jieba 分词词库**（[MIT](https://github.com/fxsjy/jieba)）；经 `scripts/build-dicts.mjs` 压缩为 `dicts/*.compact.json` 随包分发，独立发布时请注明数据来源与生成脚本。
 
 ## 已知限制（v1）
 
 - 高亮为渲染后 DOM 后处理：React 重渲染时高亮可能短暂重置（已用防抖/流式跳过/已处理文本跟踪缓解）。
-- 不覆盖代码编辑器（DSH 无）、浏览器任意网页（那是 adhdgoflyplugin 扩展的职责）。
+- 不覆盖代码编辑器（DSH 无）、浏览器任意网页（那是 [adhdgoflyplugin 浏览器扩展](https://chromewebstore.google.com/detail/adhdgofly-%E7%82%B9%E4%BA%AE%E4%BD%A0%E7%9A%84%E8%A7%86%E9%87%8E-chrome/bdpadkojpehfdepjjadmpjeieiddeodl?hl=en-US) / [Edge 加载项](https://microsoftedge.microsoft.com/addons/detail/adhdgofly-%E7%82%B9%E4%BA%AE%E4%BD%A0%E7%9A%84%E8%A7%86%E9%87%8E-edge/odleggjpbedagojaljdopcgolkcibljh?hl=zh-CN) 的职责）。
 - 设置持久化在浏览器 localStorage（跨浏览器不同步）；host 侧设置存储与 host 分词 RPC 为 v2 项。
