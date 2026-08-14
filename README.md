@@ -177,9 +177,9 @@ MarkdownText 渲染完成 → MutationObserver（防抖 400ms + 重入锁 + Weak
 
 我（zuoguyoupan2023）开发维护的一系列 DeepSeek Harness（dsh）插件，均可按需通过 `dsh plugin --profile web add <name>` 安装：
 
-| 插件 | 作用 | 安装 |
-|---|---|---|
-| **adhdgofly-dsh-ext** | DSH Web 界面词性高亮（名绿/动红/形紫/其他灰） | `dsh plugin --profile web add adhdgofly-dsh-ext` |
-| **openharness-reader** | 工作区文件浏览/编辑 + Markdown 预览 | `dsh plugin --profile web add openharness-reader` |
-| **openharness-reply-in-cn** | 强制模型用简体中文回复，侧边栏「中文回复」项 | `dsh plugin --profile web add openharness-reply-in-cn` |
-| **openharness-rule-for-dsh-plugin** | 注入 DSH 插件开发的 CAN/SHOULD/MUST NOT 规范，侧边栏「插件开发规范」项 | `dsh plugin --profile web add openharness-rule-for-dsh-plugin` |
+| 插件 | 作用 | GitHub 仓库 | 安装 |
+|---|---|---|---|
+| **adhdgofly-dsh-ext** | DSH Web 界面词性高亮（名绿/动红/形紫/其他灰） | [zuoguyoupan2023/adhdgofly-dsh-ext](https://github.com/zuoguyoupan2023/adhdgofly-dsh-ext) | `dsh plugin --profile web add adhdgofly-dsh-ext` |
+| **openharness-reader** | 工作区文件浏览/编辑 + Markdown 预览 | [zuoguyoupan2023/openharness-reader](https://github.com/zuoguyoupan2023/openharness-reader) | `dsh plugin --profile web add openharness-reader` |
+| **openharness-reply-in-cn** | 强制模型用简体中文回复，侧边栏「中文回复」项 | [zuoguyoupan2023/openharness-reply-in-cn](https://github.com/zuoguyoupan2023/openharness-reply-in-cn) | `dsh plugin --profile web add openharness-reply-in-cn` |
+| **openharness-rule-for-dsh-plugin** | 注入 DSH 插件开发的 CAN/SHOULD/MUST NOT 规范，侧边栏「插件开发规范」项 | [zuoguyoupan2023/openharness-rule-for-dsh-plugin](https://github.com/zuoguyoupan2023/openharness-rule-for-dsh-plugin) | `dsh plugin --profile web add openharness-rule-for-dsh-plugin` |
