@@ -1,0 +1,13 @@
+# adhdgofly-dsh-ext bundle patch —— applied after dsh-base / dsh-web-app,
+# before the profile's own cordis.patch.yml and any --patch overlays.
+# A later layer replaces this row's whole `config` by id; restate every key.
+- insert:
+    - id: adhdgofly
+      name: 'adhdgofly-dsh-ext'
+      config:
+        enabled: true
+        languages: ['en', 'zh']
+        minWordLength: 2
+        decorationStyle: 'color'   # color | highlight (background box)
+        posFilter: ['n', 'v', 'a', 'o']
+        highlightInComments: false # reserved for future use; DSH has no comment concept
