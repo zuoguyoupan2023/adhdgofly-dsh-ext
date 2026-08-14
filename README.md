@@ -20,21 +20,40 @@
 
 前置：本机已安装 DSH（`dsh --version`），且已初始化 `web` profile（`dsh --profile web` 跑过一次即可）。
 
+### 公开安装（从 npm 发布后，面向所有用户）
+
 ```bash
-# 在插件仓库目录执行（file: 相对路径以调用目录为锚）
+dsh plugin --profile web add adhdgofly-dsh-ext
+# 若 pnpm ≥ 10 报 ERR_PNPM_ADDING_TO_ROOT，在命令末尾追加 -w：
+# dsh plugin --profile web add -w adhdgofly-dsh-ext
+```
+
+> ⚠️ **安装完成后必须重启 DSH 才能生效**
+>
+> 1. 在正在运行的 DSH Web 终端按 `Ctrl+C` 停止当前进程；
+> 2. 重新启动：
+>    ```bash
+>    npx @deepseek-ai/dsh web
+>    ```
+>    （与 `dsh web` / `dsh --profile web` 等价，任选其一）
+> 3. 等 Web 界面重新打开后**刷新浏览器页面**。
+>
+> 不重启的话，正在运行的 DSH 进程的 boot 图里没有本插件，刷新页面也不会加载它。
+
+`dsh plugin add` 会：
+1. 在 `~/.dsh/profiles/web` 里 `pnpm add` 本包；
+2. **自动 reconcile**：检测到 `dsh.bundle` 声明，把 `adhdgofly-dsh-ext` 追加进 `dsh.profile.bundles`，成为 profile 补丁层。
+
+### 本地开发安装（file: 符号链接，改代码无需重装）
+
+```bash
+# 在插件仓库目录或其父目录执行（file: 相对路径以调用目录为锚）
 dsh plugin --profile web add file:../adhdgofly-dsh-ext
 ```
 
-`dsh plugin add` 会：
-1. 在 `~/.dsh/profiles/web` 里 `pnpm add` 本包（file: 依赖为符号链接，改代码后无需重装）；
-2. **自动 reconcile**：检测到 `dsh.bundle` 声明，把 `adhdgofly-dsh-ext` 追加进 `dsh.profile.bundles`，成为 profile 补丁层。
+file: 依赖是符号链接：客户端改动 `npm run build` 后**刷新页面**即可（DSH Web 无 HMR）；patch / bundles 改动需重启 profile。安装后同样需要按上面的提醒重启一次才生效。
 
-然后**重启 web profile**（重启 `dsh web` 进程）并刷新页面：
-```bash
-dsh --profile web            # 或 dsh web
-```
-
-验证：
+### 验证
 
 ```bash
 dsh --profile web --dump-config | grep -A3 adhdgofly   # 合成树里应有插件行
@@ -47,8 +66,40 @@ dsh --profile web --dump-config | grep -A3 adhdgofly   # 合成树里应有插�
 
 ```bash
 dsh plugin --profile web remove adhdgofly-dsh-ext
-# 重启 web profile，刷新页面
+# 同样需要重启 web profile（Ctrl+C 后重新 npx @deepseek-ai/dsh web），再刷新页面
 ```
+
+## 公开发布（让其他用户安装）
+
+本插件是标准的 DSH npm 插件包：`dsh.bundle.patch` 声明 + `exports["./client"]` 浏览器 bundle。**推荐发布到 npm**（DSH 官方同步开放 npm 插件生态），GitHub 仅作源码托管；从 GitHub 直接安装也可用，但需要额外配置（见下）。
+
+### 方式一：发布到 npm（推荐）
+
+前置：npm 账号已登录（`npm login`；未登录发布会报 E401），包名未被占用（`npm view adhdgofly-dsh-ext` 返回 404 即可用）。
+
+```bash
+npm run build:all          # 1) 生成压缩词典 2) 构建 lib/（prepublishOnly 会自动执行）
+npm test                   # jsdom 冒烟测试（prepublishOnly 会自动执行）
+npm publish                # 发布：自动跑 prepublishOnly（build:all + test）后再上传
+```
+
+- 发布内容由 `files` 字段决定：`lib/`（host + client bundle）、`dicts/`（压缩词典）、`cordis.patch.yml`、`README.md`（LICENSE / package.json 自动包含），压缩后约 4.4MB。
+- 升级版本：`npm version patch|minor|major && npm publish`。
+- 其他用户安装（见 §安装）：`dsh plugin --profile web add adhdgofly-dsh-ext`（pnpm ≥ 10 报错时末尾加 `-w`）；升级用 `dsh plugin --profile web update adhdgofly-dsh-ext`。
+
+### 方式二：从 GitHub 直接安装（备选）
+
+```bash
+dsh plugin --profile web add github:你的用户名/adhdgofly-dsh-ext
+# 或 git+https://github.com/你的用户名/adhdgofly-dsh-ext.git
+```
+
+注意：pnpm 默认**阻止依赖的构建脚本**（prepare），且本仓库 `.gitignore` 排除了 `lib/` 与 `dicts/` 构建产物。git 安装若要可用，二选一：
+
+1. 发布分支**强制包含构建产物**：`git add -f lib dicts`（构建产物随源码提交，仓库体积约 +17MB）；
+2. 或包内增加 `prepare` 构建脚本，并在安装方 `~/.dsh/profiles/web/pnpm-workspace.yaml` 的 `allowBuilds` 中放行本包（pnpm 会在安装时打印所需的精确配置项）。
+
+因此日常发布以 **npm 为主**，GitHub 用于源码协作、issue 与版本标签。
 
 ## 配置
 

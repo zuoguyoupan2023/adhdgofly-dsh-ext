@@ -46,7 +46,8 @@
     "build": "node build.mjs",
     "build:all": "npm run build:dicts && npm run build",
     "typecheck": "tsc --noEmit",
-    "test": "node tests/client-smoke.mjs"
+    "test": "node tests/client-smoke.mjs",
+    "prepublishOnly": "npm run build:all && npm test"
   },
   "license": "MIT"
 }
