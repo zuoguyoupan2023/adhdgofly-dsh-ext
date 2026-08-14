@@ -49,3 +49,24 @@ export function normalizeConfig(raw: unknown): AdhdgoflyConfig {
   if (typeof r.highlightInComments === 'boolean') cfg.highlightInComments = r.highlightInComments
   return cfg
 }
+
+/** Persistence key for user settings (v1: browser-local storage). */
+export const STORAGE_KEY = 'adhdgofly.config.v1'
+
+export function loadPersistedConfig(): AdhdgoflyConfig {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return { ...DEFAULT_CONFIG }
+    return normalizeConfig(JSON.parse(raw))
+  } catch {
+    return { ...DEFAULT_CONFIG }
+  }
+}
+
+export function savePersistedConfig(config: AdhdgoflyConfig): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
+  } catch {
+    // storage unavailable (private mode etc.) — settings stay in memory
+  }
+}

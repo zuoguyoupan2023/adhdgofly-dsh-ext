@@ -3,3 +3,4 @@ lib/
 dicts/
 *.log
 .DS_Store
+.tmp/

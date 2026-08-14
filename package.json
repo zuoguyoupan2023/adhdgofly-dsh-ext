@@ -36,6 +36,7 @@
     "react": "^18.2.0"
   },
   "devDependencies": {
+    "@types/react": "^18.3.31",
     "esbuild": "^0.25.0",
     "jsdom": "^30.0.1",
     "typescript": "^5.9.0"
@@ -44,7 +45,8 @@
     "build:dicts": "node scripts/build-dicts.mjs",
     "build": "node build.mjs",
     "build:all": "npm run build:dicts && npm run build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node tests/client-smoke.mjs"
   },
   "license": "MIT"
 }

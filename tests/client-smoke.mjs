@@ -28,9 +28,18 @@ vm.runInContext(code, context)
 
 if (globalThis.__bundleId !== 'adhdgofly-dsh-ext') throw new Error(`bad bundle id: ${globalThis.__bundleId}`)
 const factory = globalThis.__factory
-const plugin = factory((spec) => {
+const reactStub = {
+  createElement: () => null,
+  useState: () => [null, () => {}],
+  useEffect: () => {},
+  Fragment: Symbol('Fragment'),
+  default: undefined,
+}
+const makeRequire = () => (spec) => {
+  if (spec === 'react') return reactStub
   throw new Error(`unexpected require: ${spec}`)
-})
+}
+const plugin = factory(makeRequire())
 console.log('plugin exports:', Object.keys(plugin))
 
 // ── fake ctx ────────────────────────────────────────────────────
@@ -104,6 +113,37 @@ if (!words2.includes('Streaming') || !words2.includes('answer') || !words2.inclu
 console.log('post-stream highlights OK')
 
 // ── posFilter removal keeps text but drops color (CSS only) ─────
-plugin.apply(ctx, {}) // no-op guard (config undefined → defaults)
+// simulate dark theme via matchMedia mock → palette flips to DARK
+const darkMq = { matches: true, addEventListener() {}, removeEventListener() {} }
+window.matchMedia = () => darkMq
+const plugin2 = factory(makeRequire())
+const listeners2 = new Map()
+const ctx2 = {
+  get() { return undefined },
+  on(name, cb) { listeners2.set(name, cb); return () => listeners2.delete(name) },
+  effect(fn) { this._dispose = fn() },
+  off() {},
+}
+// new instance with dark theme active
+plugin2.apply(ctx2, { enabled: true, languages: ['en', 'zh'], minWordLength: 2, decorationStyle: 'color', posFilter: ['n', 'v', 'a', 'o'] })
+await new Promise((r) => setTimeout(r, 500))
+const darkStyle = window.document.getElementById('adhdgofly-style').textContent
+if (!darkStyle.includes('#4ade80')) throw new Error('dark palette missing (#4ade80)')
+console.log('dark palette OK')
+
+// update config → posFilter ['n'] only → v/a/o rules get color:inherit !important
+plugin2.updateConfig({ posFilter: ['n'], languages: ['en', 'zh'] })
+const filteredStyle = window.document.getElementById('adhdgofly-style').textContent
+if (!filteredStyle.includes('[data-pos="v"]{color:inherit!important')) throw new Error('posFilter rule missing for v')
+if (!filteredStyle.includes('[data-pos="a"]{color:inherit!important')) throw new Error('posFilter rule missing for a')
+console.log('posFilter rules OK')
+
+// decorationStyle highlight → background/border rules
+plugin2.updateConfig({ decorationStyle: 'highlight', posFilter: ['n', 'v', 'a', 'o'] })
+const hlStyle = window.document.getElementById('adhdgofly-style').textContent
+if (!hlStyle.includes('background:rgba') || !hlStyle.includes('border:1px solid rgba')) throw new Error('highlight style missing')
+console.log('decorationStyle highlight OK')
+
+ctx2._dispose?.()
 ctx._dispose?.()
 console.log('SMOKE TEST PASSED')
