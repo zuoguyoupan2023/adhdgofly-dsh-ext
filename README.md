@@ -19,14 +19,16 @@
 
 ## 安装
 
-前置：本机已安装 DeepSeek Harness（DSH），且已初始化 `web` profile（`npx @deepseek-ai/dsh web` 跑过一次即可）。当前版本 **0.1.4**。
+前置：本机已安装 DeepSeek Harness（DSH），且已初始化 `web` profile（`npx @deepseek-ai/dsh web` 跑过一次即可）。当前版本 **0.1.5**。
 
 ### 方式一：App 插件中心（推荐，无需命令行）
 
-1. 下载并安装 DSH 桌面 App，打开后在**左侧边栏**进入「**插件中心**」；
-2. 在「**特别推荐**」里找到 **adhdgofly-dsh-ext**；
-3. 点击「**安装**」，等待安装完成——DSH 会**自动重启并应用**，无需手动操作；
-4. 重启后即可在 Web 设置里看到配置入口（见 §配置）。
+1. 下载并安装 **openharness** 桌面 App：
+   - 发布页：<https://github.com/zuoguyoupan2023/openharness/releases>（当前 v0.1.0：<https://github.com/zuoguyoupan2023/openharness/releases/tag/v0.1.0>）
+2. 打开 App，在**左侧边栏**进入「**插件中心**」；
+3. 在「**特别推荐**」里找到 **adhdgofly-dsh-ext**；
+4. 点击「**安装**」，等待安装完成——DSH 会**自动重启并应用**，无需手动操作；
+5. 重启后即可在 Web 设置里看到配置入口（见 §配置）。
 
 ### 方式二：命令行安装
 
@@ -57,7 +59,7 @@ npx @deepseek-ai/dsh plugin --profile web add -w adhdgofly-dsh-ext
 ### 升级 / 卸载
 
 ```bash
-# 升级到最新版（当前 0.1.4）
+# 升级到最新版（当前 0.1.5）
 npx @deepseek-ai/dsh plugin --profile web update adhdgofly-dsh-ext
 
 # 卸载
