@@ -1,5 +1,5 @@
 /**
- * Settings surfaces for adhdgofly-dsh-ext (v0.2.0, rc.7 dual-mode).
+ * Settings surfaces for adhdgofly-dsh-ext (v0.1.3, rc.7 dual-mode).
  *
  * Two coexisting entry points bind the SAME `adhdgofly` settings namespace:
  *   - settings.section       — classic left-side section (kept in place)
@@ -7,7 +7,7 @@
  * Editing either writes through the shared scope (host-persisted on loopback),
  * so both surfaces and the highlighter stay in sync. On remote browsers the
  * scope is `unavailable` (settings RPC is loopback-only); the surfaces then
- * fall back to localStorage, preserving the pre-0.2.0 remote-editing behavior.
+ * fall back to localStorage, preserving the pre-0.1.3 remote-editing behavior.
  *
  * A `uiLayout` preference (both/classic/plugin-card, stored in localStorage and
  * read at apply-time) controls which slots are registered — applied on reload.

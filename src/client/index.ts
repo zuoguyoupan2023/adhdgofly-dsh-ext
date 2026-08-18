@@ -4,7 +4,7 @@
  * Bundled to lib/client.js (window.__ModuleLoader__.load format, see build.mjs)
  * and activated by the browser Cordis Loader as `apply(ctx, config)`.
  *
- * Config source (v0.2.0): the `adhdgofly` settings namespace served through
+ * Config source (v0.1.3): the `adhdgofly` settings namespace served through
  * `ctx.settingsScope`. The highlighter is initialised from the localStorage
  * fallback cache / baked defaults and then reactively re-fed from the scope
  * once it reaches `ready` (loopback host-persisted config). On remote browsers

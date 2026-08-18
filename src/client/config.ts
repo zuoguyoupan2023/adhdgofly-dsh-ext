@@ -3,7 +3,7 @@
  * schemastery schema registered host-side (`src/host/index.ts`). The Loader
  * validates nothing for third-party rows, so merge defensively.
  *
- * v0.2.0 config source is the `adhdgofly` settings namespace served through
+ * v0.1.3 config source is the `adhdgofly` settings namespace served through
  * `ctx.settingsScope` (host-persisted on loopback). localStorage remains only
  * as an init/fallback cache for the moment before the scope reaches `ready`
  * and for remote browsers (scope `unavailable`), and to host the `uiLayout`

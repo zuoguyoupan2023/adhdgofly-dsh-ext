@@ -1,6 +1,6 @@
 {
   "name": "adhdgofly-dsh-ext",
-  "version": "0.2.0",
+  "version": "0.1.3",
   "description": "ADHDGoFly POS highlighting for DeepSeek Harness Web: nouns green, verbs red, adjectives/adverbs purple, others gray, in rendered Markdown (conversation messages, deliverables, etc.)",
   "keywords": [
     "deepseek",
