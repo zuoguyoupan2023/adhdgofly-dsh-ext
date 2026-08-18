@@ -160,6 +160,41 @@ const hlStyle = window.document.getElementById('adhdgofly-style').textContent
 if (!hlStyle.includes('background:rgba') || !hlStyle.includes('border:1px solid rgba')) throw new Error('highlight style missing')
 console.log('decorationStyle highlight OK')
 
+// ── v0.2.0 scope bridge: served settings namespace reactively feeds the ────
+// highlighter (loopback host-persisted config). Simulate ctx.settingsScope. ──
+function makeScope() {
+  let snap = { status: 'loading', value: undefined, writable: true, mode: 'host' }
+  const listeners = new Set()
+  return {
+    getSnapshot: () => snap,
+    subscribe(cb) { listeners.add(cb); return () => listeners.delete(cb) },
+    set() {},
+    unset() {},
+    _resolve(v) { snap = { status: 'ready', value: v, writable: true, mode: 'host' }; listeners.forEach((l) => l()) },
+  }
+}
+const scope3 = makeScope()
+const ctx3 = {
+  get(name) {
+    if (name === 'settingsScope') return { bind: () => scope3 }
+    return undefined
+  },
+  on() { return () => {} },
+  effect(fn) { this._dispose = fn() },
+  off() {},
+}
+const plugin3 = factory(makeRequire())
+plugin3.apply(ctx3, {})
+// resolve the namespace → bridge must push into the highlighter → style reflects
+scope3._resolve({ enabled: true, languages: ['en', 'zh'], minWordLength: 2, decorationStyle: 'highlight', posFilter: ['n', 'v', 'a', 'o'], containers: ['[data-conversation-scroll]'] })
+await new Promise((r) => setTimeout(r, 100))
+const bridgeStyle = window.document.getElementById('adhdgofly-style').textContent
+if (!bridgeStyle.includes('background:rgba') || !bridgeStyle.includes('border:1px solid rgba')) {
+  throw new Error('scope bridge did not apply served config (highlight style missing)')
+}
+console.log('scope bridge OK')
+
+ctx3._dispose?.()
 ctx2._dispose?.()
 ctx._dispose?.()
 console.log('SMOKE TEST PASSED')

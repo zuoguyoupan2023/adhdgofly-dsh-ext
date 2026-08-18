@@ -15,7 +15,7 @@
 - **流式兼容**：`[data-streaming]` 消息流完前跳过，settle 后自动高亮；MutationObserver + 防抖 + 重入锁。
 - **代码块豁免**：`pre/code`、`.markdown-code-block`、按钮/输入框/装饰区不参与高亮。
 - **属性契约（v0.1.2）**：任何带 `data-adhdgofly-highlight` 属性的元素**自动被高亮**（无需写入 `containers` 配置、无需重新加载）——`openharness-reader` 的 Markdown 预览即用此契约接入；其他插件可照此联动。未带该属性的页面不受影响。
-- **设置页**：Settings → **ADHDGoFly** 分区（启用、语言、最小词长、样式、词性筛选、高亮容器），改动即时生效并持久化到 localStorage。
+- **设置页（v0.2.0 双模式）**：配置面有**两个并存入口**——① Settings → **ADHDGoFly** 左侧分区（保留原位，老习惯不变）；② Settings → 插件 → **「插件配置」**标签页里的 **ADHDGoFly 卡片**（rc.7 官方插件设置机制）。两者绑定同一个 `adhdgofly` settings 命名空间（宿主侧 schema 持久化，loopback 下改任一处另一处自动同步）；远程浏览器自动回退 localStorage。可在设置里用「设置入口 / Settings entry」选择只留一种（`both`/`classic`/`plugin-card`，刷新生效）。
 
 ## 安装
 
@@ -61,7 +61,7 @@ dsh --profile web --dump-config | grep -A3 adhdgofly   # 合成树里应有插�
 # 浏览器 DevTools → Network 应能看到 /plugins/adhdgofly-dsh-ext/client.js 正常返回
 ```
 
-> 说明：DSH 0.1.0-rc.6 的客户端 Loader 只按包名激活插件行，行级 `config` 不会下发给 client 半；因此 v1 的设置默认值内置在 bundle 中，用户在设置页修改并持久化到 localStorage（见 §配置）。
+> 说明：v0.2.0 起配置面走 rc.7 插件设置机制——host 半注册 `adhdgofly` settings 命名空间（schemastery schema，row config 作为 base 层），client 半经 `ctx.settingsScope` 读取；loopback 下由宿主持久化，localStorage 仅作远程浏览器的回退缓存（见 §配置）。
 
 ## 卸载
 
@@ -115,9 +115,11 @@ dsh plugin --profile web add github:你的用户名/adhdgofly-dsh-ext
 
 三种改法（按优先级）：
 
-1. **设置页**（推荐）：Settings → ADHDGoFly，改动即时生效并持久化（localStorage `adhdgofly.config.v1`）。
-2. **行 config**（`~/.dsh/profiles/web/cordis.patch.yml` 按 id 覆盖整行）：仅影响 host 半与文档语义，DSH 0.1.0-rc.6 下不会自动下发到 client，需配合设置页或默认值使用。
-3. **代码默认值**：改 `src/client/config.ts` 的 `DEFAULT_CONFIG` 后重新构建。
+1. **设置页**（推荐，v0.2.0 双入口）：Settings → ADHDGoFly 左侧分区 **或** Settings → 插件 →「插件配置」的 ADHDGoFly 卡片。两者绑定同一个 `adhdgofly` 命名空间，loopback 下由宿主持久化、互相同步；改动即时生效。
+2. **行 config**（`~/.dsh/profiles/web/cordis.patch.yml` 按 id 覆盖整行）：作为命名空间的 base 层，经 `ctx.settingsScope` 流入 client（rc.7 起生效）。
+3. **代码默认值**：改 `src/host/index.ts` 的 `SCHEMA` 默认值 与 `src/client/config.ts` 的 `DEFAULT_CONFIG` 后重新构建。
+
+> 远程浏览器（非 loopback）说明：DSH 的 settings RPC 仅限 loopback，远程浏览器里设置不持久化、插件卡片不显示；此时高亮使用 localStorage 回退缓存（本地记忆）或内置默认。
 
 ## 开发循环
 
@@ -138,7 +140,7 @@ npm test               # jsdom 冒烟测试（分词/代码块豁免/流式/色�
 | 产物 | 说明 |
 |---|---|
 | `lib/client.js` | 浏览器 bundle（`window.__ModuleLoader__.load` 格式），内嵌压缩词典，约 8MB 未压缩 |
-| `lib/index.js` | host 半（空 `apply()` + 预留 RPC 桩），ESM |
+| `lib/index.js` | host 半：注册 `adhdgofly` settings 命名空间（schemastery schema + base 层），ESM |
 | `dicts/en.compact.json`、`dicts/zh.compact.json` | `word → posKey('n'\|'v'\|'a'\|'o')`，构建期从 ide-ext 大词典生成，运行时只读压缩形态 |
 
 ## 架构
@@ -167,11 +169,11 @@ MarkdownText 渲染完成 → MutationObserver（防抖 400ms + 重入锁 + Weak
 - 代码：MIT（本仓库 + adhdgofly-ide-ext，同属 ADHDGoFly 生态）。
 - 词典数据：源自 adhdgofly-ide-ext 内置词典（`dictionaries/EN_word.json`、`ZH_word.json`，MIT 生态），其中**英文词典来自 Princeton WordNet**（[WordNet License](https://wordnet.princeton.edu/license-and-commercial-use)），**中文词典来自 jieba 分词词库**（[MIT](https://github.com/fxsjy/jieba)）；经 `scripts/build-dicts.mjs` 压缩为 `dicts/*.compact.json` 随包分发，独立发布时请注明数据来源与生成脚本。
 
-## 已知限制（v1）
+## 已知限制（v0.2.0）
 
 - 高亮为渲染后 DOM 后处理：React 重渲染时高亮可能短暂重置（已用防抖/流式跳过/已处理文本跟踪缓解）。
 - 不覆盖代码编辑器（DSH 无）、浏览器任意网页（那是 [adhdgoflyplugin 浏览器扩展](https://chromewebstore.google.com/detail/adhdgofly-%E7%82%B9%E4%BA%AE%E4%BD%A0%E7%9A%84%E8%A7%86%E9%87%8E-chrome/bdpadkojpehfdepjjadmpjeieiddeodl?hl=en-US) / [Edge 加载项](https://microsoftedge.microsoft.com/addons/detail/adhdgofly-%E7%82%B9%E4%BA%AE%E4%BD%A0%E7%9A%84%E8%A7%86%E9%87%8E-edge/odleggjpbedagojaljdopcgolkcibljh?hl=zh-CN) 的职责）。
-- 设置持久化在浏览器 localStorage（跨浏览器不同步）；host 侧设置存储与 host 分词 RPC 为 v2 项。
+- 设置持久化：loopback 下由宿主 settings 持久化（跨浏览器/会话一致）；远程浏览器（非 loopback）settings RPC 不生效，回退到浏览器 localStorage（跨浏览器不同步）。
 
 ## 我开发的 DSH 插件
 

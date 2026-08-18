@@ -1,10 +1,17 @@
 /**
  * Plugin config — defaults mirror the bundle patch (cordis.patch.yml) and the
- * adhdgofly-ide-ext settings (docs/007-config-reference / README).
- * The Loader validates nothing for third-party rows, so merge defensively.
+ * schemastery schema registered host-side (`src/host/index.ts`). The Loader
+ * validates nothing for third-party rows, so merge defensively.
+ *
+ * v0.2.0 config source is the `adhdgofly` settings namespace served through
+ * `ctx.settingsScope` (host-persisted on loopback). localStorage remains only
+ * as an init/fallback cache for the moment before the scope reaches `ready`
+ * and for remote browsers (scope `unavailable`), and to host the `uiLayout`
+ * surface-preference.
  */
 
 export type DecorationStyle = 'color' | 'highlight'
+export type LayoutMode = 'both' | 'classic' | 'plugin-card'
 
 export interface AdhdgoflyConfig {
   enabled: boolean
@@ -30,6 +37,9 @@ export const DEFAULT_CONFIG: AdhdgoflyConfig = {
   highlightInComments: false,
 }
 
+/** Which settings surfaces render. Stored in localStorage (see §1 D6). */
+export const DEFAULT_LAYOUT_MODE: LayoutMode = 'both'
+
 const asStrArray = (v: unknown): string[] => Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []
 
 export function normalizeConfig(raw: unknown): AdhdgoflyConfig {
@@ -50,8 +60,12 @@ export function normalizeConfig(raw: unknown): AdhdgoflyConfig {
   return cfg
 }
 
-/** Persistence key for user settings (v1: browser-local storage). */
+// ── localStorage: init fallback + layout preference (NOT the editing source) ──
+
+/** Persistence key for the fallback config cache (v1 kept for backward compat). */
 export const STORAGE_KEY = 'adhdgofly.config.v1'
+/** Persistence key for the surface-layout preference. */
+export const LAYOUT_KEY = 'adhdgofly.uiLayout.v1'
 
 export function loadPersistedConfig(): AdhdgoflyConfig {
   try {
@@ -69,4 +83,48 @@ export function savePersistedConfig(config: AdhdgoflyConfig): void {
   } catch {
     // storage unavailable (private mode etc.) — settings stay in memory
   }
+}
+
+/** Read the surface-layout preference (sync, so apply() can pick which slots to register). */
+export function loadLayoutMode(): LayoutMode {
+  try {
+    const raw = localStorage.getItem(LAYOUT_KEY)
+    if (raw === 'classic' || raw === 'plugin-card' || raw === 'both') return raw
+  } catch {
+    // ignore
+  }
+  return DEFAULT_LAYOUT_MODE
+}
+
+export function saveLayoutMode(mode: LayoutMode): void {
+  try {
+    localStorage.setItem(LAYOUT_KEY, mode)
+  } catch {
+    // ignore
+  }
+}
+
+/**
+ * Minimal wire contract for the settings scope consumed in the browser half.
+ * Kept local (no import of @deepseek-ai/dsh-client-ui-settings) to respect the
+ * client-bundle purity gate — the service is reached via `ctx.settingsScope`.
+ */
+export interface SettingsScopeSnapshot<T> {
+  status: 'loading' | 'ready' | 'unavailable'
+  value?: T
+  base?: unknown
+  user?: unknown
+  revision?: number
+  writable: boolean
+  mode: 'host' | 'memory'
+}
+export interface SettingsScope<T> {
+  getSnapshot(): SettingsScopeSnapshot<T>
+  subscribe(listener: () => void): () => void
+  set(field: string, value: unknown): Promise<void>
+  unset(field: string): Promise<void>
+}
+export interface SettingsScopeSpec<T> {
+  namespace: string
+  decode?: (section: unknown) => T | undefined
 }

@@ -29,6 +29,10 @@ const EXTERNALS = [
   '@deepseek-ai/cordis',
   '@deepseek-ai/dsh-client-runtime',
   '@deepseek-ai/dsh-client-ui-primitives',
+  '@deepseek-ai/dsh-client-ui-settings',
+  '@deepseek-ai/dsh-client-ui-settings-plugins',
+  '@deepseek-ai/dsh-settings',
+  '@deepseek-ai/schemastery',
 ]
 
 async function buildClient() {

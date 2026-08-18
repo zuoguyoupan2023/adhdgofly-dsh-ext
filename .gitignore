@@ -4,3 +4,4 @@ dicts/
 *.log
 .DS_Store
 .tmp/
+.pnpm-store/
