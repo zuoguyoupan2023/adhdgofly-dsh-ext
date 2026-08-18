@@ -19,7 +19,7 @@
 
 ## 安装
 
-前置：本机已安装 DeepSeek Harness（DSH），且已初始化 `web` profile（`npx @deepseek-ai/dsh web` 跑过一次即可）。当前版本 **0.1.3**。
+前置：本机已安装 DeepSeek Harness（DSH），且已初始化 `web` profile（`npx @deepseek-ai/dsh web` 跑过一次即可）。当前版本 **0.1.4**。
 
 ### 方式一：App 插件中心（推荐，无需命令行）
 
@@ -57,7 +57,7 @@ npx @deepseek-ai/dsh plugin --profile web add -w adhdgofly-dsh-ext
 ### 升级 / 卸载
 
 ```bash
-# 升级到最新版（当前 0.1.3）
+# 升级到最新版（当前 0.1.4）
 npx @deepseek-ai/dsh plugin --profile web update adhdgofly-dsh-ext
 
 # 卸载
